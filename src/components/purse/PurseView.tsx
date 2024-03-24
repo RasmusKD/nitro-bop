@@ -81,7 +81,7 @@ export const PurseView: FC<{}> = props =>
                         <Flex center pointer fullHeight className="nitro-purse-button p-1 rounded coffecurrencybutton" onClick={ event => CreateLinkEvent('user-settings/toggle') } >
                             <i className="icon icon-cog"/>
                         </Flex>
-                    </Column>
+                   </Column>
                 </Grid>
             </Flex>
             { getCurrencyElements(2, -1, true) }

@@ -15,10 +15,10 @@
         &.item-avatar {
             overflow: hidden;
             color: #fff;
-            background-color: #b69b83;
+            background-color: #3b3b3bb0;
             width: 50px;
             height: 50px;
-            border-radius: 32px;
+            border-radius: 12px;
             border: 2px solid #fff;
             padding: 1.75em;
             @include media-breakpoint-down(sm) {
@@ -57,9 +57,9 @@
         }
     }
     .click-box {
-        background-color: #424354;
-        border: 2px solid #63647a;
-        box-shadow: 0 0 0 1px #63647a;
+        background-color: #212121ab;
+        border: 3px solid #171717;
+        // box-shadow: 0 0 0 1px #2b2b2b;
         border-radius: 1rem;
         padding: 0.2rem;
         width: 3.65em;
