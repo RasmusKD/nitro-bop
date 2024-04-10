@@ -2,10 +2,11 @@ import { RelationshipStatusInfoEvent, RelationshipStatusInfoMessageParser, RoomS
 import { Dispatch, FC, FocusEvent, KeyboardEvent, SetStateAction, useEffect, useState } from 'react';
 import { FaPencilAlt, FaTimes } from 'react-icons/fa';
 import { AvatarInfoUser, CloneObject, GetConfiguration, GetGroupInformation, GetSessionDataManager, GetUserProfile, LocalizeText, SendMessageComposer } from '../../../../../api';
-import { Column, Flex, LayoutAvatarImageView, LayoutBadgeImageView, Text, UserProfileIconView } from '../../../../../common';
+import { Base, Column, Flex, LayoutAvatarImageView, LayoutBadgeImageView, Text, UserProfileIconView } from '../../../../../common';
 import { useMessageEvent, useRoom, useRoomSessionManagerEvent } from '../../../../../hooks';
 import { InfoStandWidgetUserRelationshipsView } from './InfoStandWidgetUserRelationshipsView';
 import { InfoStandWidgetUserTagsView } from './InfoStandWidgetUserTagsView';
+import { BackgroundsView } from '../../../../backgrounds/BackgroundsView';
 
 interface InfoStandWidgetUserViewProps
 {
@@ -21,6 +22,14 @@ export const InfoStandWidgetUserView: FC<InfoStandWidgetUserViewProps> = props =
     const [ isEditingMotto, setIsEditingMotto ] = useState(false);
     const [ relationships, setRelationships ] = useState<RelationshipStatusInfoMessageParser>(null);
     const { roomSession = null } = useRoom();
+    const [ backgroundId, setBackgroundId ] = useState<number>(null);
+    const [ standId, setStandId ] = useState<number>(null);
+    const [ overlayId, setOverlayId ] = useState<number>(null);
+    const [ isVisible, setIsVisible ] = useState(false);
+
+    const infostandBackgroundClass = `background-${ backgroundId }`;
+    const infostandStandClass = `stand-${ standId }`;
+    const infostandOverlayClass = `overlay-${ overlayId }`;
 
     const saveMotto = (motto: string) =>
     {
@@ -73,6 +82,9 @@ export const InfoStandWidgetUserView: FC<InfoStandWidgetUserViewProps> = props =
 
             newValue.figure = event.figure;
             newValue.motto = event.customInfo;
+            newValue.backgroundId = event.backgroundId;
+            newValue.standId = event.standId;
+            newValue.overlayId = event.overlayId;
             newValue.achievementScore = event.activityPoints;
 
             return newValue;
@@ -109,6 +121,9 @@ export const InfoStandWidgetUserView: FC<InfoStandWidgetUserViewProps> = props =
     {
         setIsEditingMotto(false);
         setMotto(avatarInfo.motto);
+        setBackgroundId(avatarInfo.backgroundId);
+        setStandId(avatarInfo.standId);
+        setOverlayId(avatarInfo.overlayId);
 
         SendMessageComposer(new UserRelationshipsComposer(avatarInfo.webID));
 
@@ -117,6 +132,9 @@ export const InfoStandWidgetUserView: FC<InfoStandWidgetUserViewProps> = props =
             setIsEditingMotto(false);
             setMotto(null);
             setRelationships(null);
+            setBackgroundId(null);
+            setStandId(null);
+            setOverlayId(null);
         }
     }, [ avatarInfo ]);
 
@@ -137,8 +155,16 @@ export const InfoStandWidgetUserView: FC<InfoStandWidgetUserViewProps> = props =
                 </Column>
                 <Column gap={ 1 }>
                     <Flex gap={ 1 }>
-                        <Column fullWidth className="body-image" onClick={ event => GetUserProfile(avatarInfo.webID) }>
+                        <Column position="relative" pointer fullWidth className={ `body-image profile-background ${ infostandBackgroundClass }` } onClick={ event => GetUserProfile(avatarInfo.webID) }>
+                            <Base position="absolute" className={ `body-image profile-stand ${ infostandStandClass }` }/>
                             <LayoutAvatarImageView figure={ avatarInfo.figure } direction={ 4 } />
+                            <Base position="absolute" className={ `body-image profile-overlay ${ infostandOverlayClass }` }/>
+                            { avatarInfo.type === AvatarInfoUser.OWN_USER &&
+                                <Base className="icon edit-icon edit-position" onClick={ event =>
+                                {
+                                    event.stopPropagation(); setIsVisible(prevValue => !prevValue);
+                                } } />
+                            }
                         </Column>
                         <Column grow alignItems="center" gap={ 0 }>
                             <Flex gap={ 1 }>
@@ -210,6 +236,17 @@ export const InfoStandWidgetUserView: FC<InfoStandWidgetUserViewProps> = props =
                     </Column>
                 }
             </Column>
+            { (isVisible && avatarInfo.type === AvatarInfoUser.OWN_USER) &&
+                <BackgroundsView
+                    setIsVisible={ setIsVisible }
+                    selectedBackground={ backgroundId }
+                    setSelectedBackground={ setBackgroundId }
+                    selectedStand={ standId }
+                    setSelectedStand={ setStandId }
+                    selectedOverlay={ overlayId }
+                    setSelectedOverlay={ setOverlayId }
+                />
+            }
         </Column>
     );
 }
