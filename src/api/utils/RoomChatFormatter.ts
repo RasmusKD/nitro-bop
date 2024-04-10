@@ -1,4 +1,6 @@
+import * as joypixels from 'emoji-toolkit';
 import { GetConfiguration } from '../../api';
+
 export const allowedColours: Map<string, string> = new Map();
 
 allowedColours.set('r', 'red');
@@ -120,9 +122,9 @@ const encodeHTML = (str: string) =>
 {
     return str.replace(/([\u00A0-\u9999<>&])(.|$)/g, (full, char, next) =>
     {
-        if(char !== '&' || next !== '#')
+        if (char !== '&' || next !== '#')
         {
-            if(/[\u00A0-\u9999<>&]/.test(next)) next = '&#' + next.charCodeAt(0) + ';';
+            if (/[\u00A0-\u9999<>&]/.test(next)) next = '&#' + next.charCodeAt(0) + ';';
 
             return '&#' + char.charCodeAt(0) + ';' + next;
         }
@@ -131,14 +133,57 @@ const encodeHTML = (str: string) =>
     });
 }
 
-export const RoomChatFormatter = (content: string) => {
+export const RoomChatFormatter = (content: string) =>
+{
     let result = '';
 
     content = encodeHTML(content);
+    content = content.replace(/\|/g, ":heart:");
+    content = content.replace("<3", ":two_hearts:");
+    content = content.replace(">:)", ":smiling_imp:");
+    content = content.replace(">:(", ":rage:");
+    content = content.replace(":D", ":grin:");
+    content = content.replace(":(", ":pensive:");
+    content = content.replace(":)", ":smile:");
+    content = content.replace("smh", ":face_palm:");
+    content = content.replace("<.<", ":eyes:");
+    content = content.replace(">.>", ":eyes:");
+    content = content.replace(":O", ":open_mouth:");
+    content = content.replace(";)", ":wink:");
+    content = content.replace("nigger", ":monkey:");
+    content = content.replace("Nigger", ":monkey:");
+    content = content.replace("NIGGER", ":monkey:");
+    content = content.replace("habdash", ":hankey:");
+    content = content.replace("HabDash", ":hankey:");
+    content = content.replace("HABDASH", ":hankey:");
+    content = content.replace("habda.sh", ":hankey:");
+    content = content.replace("vibehotel", ":hankey:");
+    content = content.replace("hablyf", ":hankey:");
+    content = content.replace("habfun", ":hankey:");
     content = content.replace(/\[tag\](.*?)\[\/tag\]/g, '<span class="chat-tag"><b>$1</b></span>');
+    content = (joypixels.shortnameToUnicode(content) as string)
 
+/*
+        // Check if content matches the regular expression pattern
+        var webRegex = /https?:\/\//;  
+        if (webRegex.test(content)) {
+          console.log("Content includes 'http' or 'https'. Executing code...");
+          // Add your code here to be executed when "http" or "https" is found
+          content = content.replace(
+            content,
+            `
+            <center>
+            <a href=" ` + content + `"` + `target="_blank" style="background-color: black; color: white; padding: 5px 10px; border-radius: 5px; text-decoration: none;">Open Link</a>
+            </center> 
+            `
+        );
+        } else {
+          return;
+        }
+*/
     // Youtube link
-    if (!GetConfiguration<boolean>('youtube.publish.disabled', false)) {
+    if (!GetConfiguration<boolean>('youtube.publish.disabled', false))
+    {
         content = content.replace(
             /(?:http:\/\/|https:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?.*v=|shorts\/)?([a-zA-Z0-9_-]{11})/g,
             `
@@ -151,18 +196,22 @@ export const RoomChatFormatter = (content: string) => {
     }
 
     const match = content.match(/@[a-zA-Z]+@/);
-    if (match) {
+    if (match)
+    {
         const colorTag = match[0].toString();
         const colorName = colorTag.substr(1, colorTag.length - 2);
         const text = content.replace(colorTag, '');
 
-        if (!allowedColours.has(colorName)) {
+        if (!allowedColours.has(colorName))
+        {
             result = text;
-        } else {
+        } else
+        {
             const color = allowedColours.get(colorName);
             result = `<span style="color: ${color}">${text}</span>`;
         }
-    } else {
+    } else
+    {
         result = content;
     }
 

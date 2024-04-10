@@ -54,7 +54,8 @@
     "@pixi/ticker": "~6.5.10",
     "@pixi/tilemap": "^3.2.2",
     "@pixi/utils": "~6.5.10",
-	"clientjs": "^0.2.1",
+    "emoji-toolkit": "8.0.0",
+	  "clientjs": "^0.2.1",
     "gifuct-js": "^2.1.2",
     "howler": "^2.2.3",
     "pako": "^2.1.0"
