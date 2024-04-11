@@ -38,7 +38,25 @@ export const InfoStandWidgetFurniView: FC<InfoStandWidgetFurniViewProps> = props
     const [ songId, setSongId ] = useState<number>(-1);
     const [ songName, setSongName ] = useState<string>('');
     const [ songCreator, setSongCreator ] = useState<string>('');
-	const [itemLocation, setItemLocation] = useState<{ x: number; y: number; z: number; }>({ x: -1, y: -1, z: -1 });
+    const [ itemLocation, setItemLocation ] = useState<{ x: number; y: number; z: number; }>({ x: -1, y: -1, z: -1 });
+    const [ shouldSave, setShouldSave ] = useState(false);
+    const handleAdjustment = useCallback((index, amount) =>
+    {
+        const clone = Array.from(furniValues);
+        clone[index] = (parseInt(clone[index], 10) + amount).toString();
+
+        setFurniValues(clone);
+        setShouldSave(true);
+    }, [ furniValues ]);
+
+    useEffect(() =>
+    {
+        if (shouldSave)
+        {
+            processButtonAction('save_branding_configuration');
+            setShouldSave(false); // Reset after saving
+        }
+    }, [ furniValues, shouldSave ]);
 
     useSoundEvent<NowPlayingEvent>(NowPlayingEvent.NPE_SONG_CHANGED, event =>
     {
@@ -75,12 +93,13 @@ export const InfoStandWidgetFurniView: FC<InfoStandWidgetFurniViewProps> = props
         let furniIsJukebox = false;
         let furniIsSongDisk = false;
         let furniSongId = -1;
-		
-		const roomObject = GetRoomEngine().getRoomObject( roomSession.roomId, avatarInfo.id, avatarInfo.isWallItem ? RoomObjectCategory.WALL : RoomObjectCategory.FLOOR );
-		const location = roomObject.getLocation();
-		if (location) {
-			setItemLocation({ x: location.x, y: location.y, z: location.z, });
-		}
+
+        const roomObject = GetRoomEngine().getRoomObject( roomSession.roomId, avatarInfo.id, avatarInfo.isWallItem ? RoomObjectCategory.WALL : RoomObjectCategory.FLOOR );
+        const location = roomObject.getLocation();
+        if (location)
+        {
+            setItemLocation({ x: location.x, y: location.y, z: location.z, });
+        }
 
         const isValidController = (avatarInfo.roomControllerLevel >= RoomControllerLevel.GUEST);
 
@@ -413,32 +432,62 @@ export const InfoStandWidgetFurniView: FC<InfoStandWidgetFurniViewProps> = props
                                     <Text variant="white" underline>{ groupName }</Text>
                                 </Flex>
                             </> }
-							<>
-								<hr className="m-0" />
-								<Text small wrap variant="white">
-								X = {itemLocation.x}  and  Y = {itemLocation.y}<br />
-								BuildHeight = {itemLocation.z < 0.01 ? 0 : itemLocation.z}<br />
-								{ canSeeFurniId && <Text wrap variant="white"> Room Furnishing ID: { avatarInfo.id }</Text> }
-							</Text>
-							</>
-							{itemLocation.x > -1}
+                        <>
+                            <hr className="m-0" />
+                            <Text small wrap variant="white">
+								X = { itemLocation.x }  and  Y = { itemLocation.y }<br />
+								BuildHeight = { itemLocation.z < 0.01 ? 0 : itemLocation.z }<br />
+                                { canSeeFurniId && <Text wrap variant="white"> Room Furnishing ID: { avatarInfo.id }</Text> }
+                            </Text>
+                        </>
+                        { itemLocation.x > -1 }
                         { godMode &&
                             <>
                                 <hr className="m-0" />
-                                { (furniKeys.length > 0) &&
-                                    <>
-                                        <hr className="m-0"/>
-                                        <Column gap={ 1 }>
-                                            { furniKeys.map((key, index) =>
-                                            {
-                                                return (
-                                                    <Flex key={ index } alignItems="center" gap={ 1 }>
-                                                        <Text wrap align="end" variant="white" className="col-4">{ key }</Text>
-                                                        <input type="text" className="form-control form-control-sm" value={ furniValues[index] } onChange={ event => onFurniSettingChange(index, event.target.value) }/>
-                                                    </Flex>);
-                                            }) }
+                                { furniKeys.map((key, index) =>
+                                {
+                                    let displayKey = key;
+                                    let adjustments = [];
+
+                                    if (key === 'imageUrl')
+                                    {
+                                        displayKey = 'Url';
+                                    }
+                                    else if (key === 'offsetX')
+                                    {
+                                        displayKey = 'X';
+                                        adjustments = [ -100, -10, -1, 1, 10, 100 ];
+                                    }
+                                    else if (key === 'offsetY')
+                                    {
+                                        displayKey = 'Y';
+                                        adjustments = [ -100, -10, -1, 1, 10, 100 ];
+                                    }
+                                    else if (key === 'offsetZ')
+                                    {
+                                        displayKey = 'Z';
+                                        adjustments = [ -100, -10, -1, 1, 10, 100 ];
+                                    }
+
+                                    return (
+                                        <Column key={ index } gap={ 1 }>
+                                            <Flex alignItems="center" gap={ 1 }>
+                                                <Text wrap align="end" variant="white" className="col-branding">{ displayKey }</Text>
+                                                <input spellCheck="false" type="text" className="form-control form-control-sm" value={ furniValues[index] } onChange={ event => onFurniSettingChange(index, event.target.value) } />
+                                            </Flex>
+                                            { adjustments.length > 0 &&
+                                                <Flex gap={ 0 } alignSelf="end">
+                                                    { adjustments.map(amt => (
+                                                        <Button className="branding-offset-buttons" key={ amt } onClick={ () => handleAdjustment(index, amt) } >
+                                                            { amt > 0 ? `+${ amt }` : amt }
+                                                        </Button>
+                                                    )) }
+                                                </Flex>
+                                            }
                                         </Column>
-                                    </> }
+                                    );
+                                }) }
+
                             </> }
                         { (customKeys.length > 0) &&
                             <>
