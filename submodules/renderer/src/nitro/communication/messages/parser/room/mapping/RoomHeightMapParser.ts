@@ -8,12 +8,12 @@ export class RoomHeightMapParser implements IMessageParser
 
     public static decodeTileHeight(height: number): number
     {
-        return ((height < 0) ? -1 : ((height & 16383) / 0x0100));
+        return ((height < 0) ? -1 : ((height & 32767) / 0x0100));
     }
 
     public static decodeIsStackingBlocked(height: number): boolean
     {
-        return !!(height & 0x4000);
+        return !!(height & 0x8000);
     }
 
     public static decodeIsRoomTile(height: number): boolean
