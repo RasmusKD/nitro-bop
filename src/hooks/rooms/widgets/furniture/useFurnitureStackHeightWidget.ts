@@ -4,7 +4,7 @@ import { CanManipulateFurniture, GetRoomEngine, GetRoomSession, SendMessageCompo
 import { useMessageEvent, useRoomEngineEvent } from '../../../events';
 import { useFurniRemovedEvent } from '../../engine';
 
-const MAX_HEIGHT: number = 40;
+const MAX_HEIGHT: number = 100;
 
 const useFurnitureStackHeightWidgetState = () =>
 {
